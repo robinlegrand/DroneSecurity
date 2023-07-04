@@ -63,25 +63,25 @@ def decoded_to_file(raw_bits):
         with open(db_filename,"ab") as fd:
             fd.write(raw_bits)
 
-def set_sdr(usrp, sample_rate=50e6, duration_s=1.3, gain=None):
-    ###### dev config (UHD b200) #####
-    # RX2 port for 2.4 GHz antenna
-    usrp.set_rx_antenna("RX2",0)
+def set_sdr(usrp, sample_rate=10e6, duration_s=1.3, gain=None):
+    # Set the antenna to RX
+    usrp.set_antenna('RX')
+
     if gain:
-        usrp.set_rx_gain(gain, 0)
+        usrp.set_gain(gain)
     else:
-        usrp.set_rx_agc(True, 0)
+        usrp.set_gain('auto')
 
-    num_samps = duration_s*sample_rate
+    num_samps = int(duration_s * sample_rate)
 
-    usrp.set_rx_rate(sample_rate, 0)
-    dev_samp_rate = usrp.get_rx_rate()
+    usrp.set_sample_rate(sample_rate)
+    dev_samp_rate = usrp.get_sample_rate()
 
     # Set up the stream and receive buffer
-    st_args = uhd.usrp.StreamArgs("fc32","sc16")
-    st_args.channels = [0]
-    _metadata = uhd.types.RXMetadata()
-    _streamer = usrp.get_rx_stream(st_args)
+    st_args = hackrf.HackRFArgs()
+    st_args.channel = 0
+    _metadata = hackrf.RxMetadata()
+    _streamer = usrp.setup_rx_stream(st_args)
     _recv_buffer = np.zeros((1, RECV_BUFFER_LEN), dtype=np.complex64)
 
     return num_samps, _metadata, _streamer, _recv_buffer
