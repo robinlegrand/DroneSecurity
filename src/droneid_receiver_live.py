@@ -249,7 +249,7 @@ def main():
 
 
     signal.signal(signal.SIGINT, signal_handler)
-    usrp = uhd.usrp.MultiUSRP("type=b200, recv_frame_size=8200,num_recv_frames=512")
+    usrp = uhd.usrp.MultiUSRP("type=hackrf, recv_frame_size=8200,num_recv_frames=512")
 
     if args.gain > 0:
         gain = args.gain
